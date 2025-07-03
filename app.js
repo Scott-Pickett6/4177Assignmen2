@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Product from "./product.js";
+import { authenticate, authorizeVendor } from './auth.js';
 
 const app = express();
 app.use(express.json());
@@ -31,7 +32,7 @@ app.listen(port, () => {
 // core feature 1
 
 // API Endpoint add Product
-app.post('/products', async (req, res) => {
+app.post('/products',authenticate, authorizeVendor, async (req, res) => {
   try{
     const product = new Product(req.body);
     await product.save();
@@ -47,7 +48,7 @@ app.post('/products', async (req, res) => {
 
 
 // API Endpoint get product by id
-app.get('/products/:id', async (req, res) => {
+app.get('/products/:id', authenticate, authorizeVendor, async (req, res) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({
